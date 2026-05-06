@@ -5,6 +5,8 @@ jobs:
   check-approval:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4 # 👈 This creates the .git folder
       - name: Check PR Approval Status
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
