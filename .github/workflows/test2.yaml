@@ -26,7 +26,7 @@ jobs:
           # Check the review decision
           echo "Current PR Status: $PR_STATUS"
           
-          if [ "$STATUS" == "APPROVED" ]; then
+          if [ "$PR_STATUS" == "APPROVED" ]; then
             echo "✅ PR is approved. Proceeding..."
             echo "approved=true" >> $GITHUB_OUTPUT
           else
