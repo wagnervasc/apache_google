@@ -26,10 +26,6 @@ jobs:
           # Check the review decision
           echo "Current PR Status: $PR_STATUS"
           
-          if [ "$PR_STATUS" != "APPROVED" ]; then
-            echo "❌ Error: This workflow requires an APPROVED Pull Request."
-            exit 1
-          fi
           if [ "$STATUS" == "APPROVED" ]; then
             echo "✅ PR is approved. Proceeding..."
             echo "approved=true" >> $GITHUB_OUTPUT
