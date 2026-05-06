@@ -13,9 +13,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           BRANCH_NAME=${{ github.ref_name }}
+          echo "approved=false" >> $GITHUB_OUTPUT
           # Find the PR for the current branch
-          #PR_STATUS=$(gh pr view "$BRANCH_NAME" --json reviewDecision --jq '.reviewDecision' || echo "NO_PR")
-          #PR_STATUS=$(gh pr view "${{ github.ref_name }}" --json reviewDecision --jq '.reviewDecision // "REVIEW_REQUIRED"')
           PR_DATA=$(gh pr view "${{ github.ref_name }}" --json state,reviewDecision --jq '[.state, (.reviewDecision // "REVIEW_REQUIRED")] | @csv' | tr -d '"')
           
           # If no PR exists at all
