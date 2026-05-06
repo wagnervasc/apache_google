@@ -15,25 +15,30 @@ jobs:
           BRANCH_NAME=${{ github.ref_name }}
           # Find the PR for the current branch
           #PR_STATUS=$(gh pr view "$BRANCH_NAME" --json reviewDecision --jq '.reviewDecision' || echo "NO_PR")
-          PR_STATUS=$(gh pr view "${{ github.ref_name }}" --json reviewDecision --jq '.reviewDecision // "REVIEW_REQUIRED"')
-
+          #PR_STATUS=$(gh pr view "${{ github.ref_name }}" --json reviewDecision --jq '.reviewDecision // "REVIEW_REQUIRED"')
+          PR_DATA=$(gh pr view "${{ github.ref_name }}" --json state,reviewDecision --jq '[.state, (.reviewDecision // "REVIEW_REQUIRED")] | @csv' | tr -d '"')
+          
           # If no PR exists at all
           if [ $? -ne 0 ]; then
             echo "No Pull Request found for branch ${{ github.ref_name }}"
             exit 1
           fi
           
-          # Check the review decision
-          echo "Current PR Status: $PR_STATUS"
-          
-          if [ "$PR_STATUS" == "APPROVED" ]; then
-            echo "✅ PR is approved. Proceeding..."
+          # Split the comma-separated values
+          STATE=$(echo $PR_DATA | cut -d',' -f1)
+          DECISION=$(echo $PR_DATA | cut -d',' -f2)
+      
+          echo "Review Decision: $DECISION"
+
+          if [[ "$STATE" == "OPEN" && "$DECISION" == "APPROVED" ]]; then
             echo "approved=true" >> $GITHUB_OUTPUT
+            echo "✅ PR is Open and Approved."
           else
-            echo "❌ Error: This workflow requires an APPROVED Pull Request."
             echo "approved=false" >> $GITHUB_OUTPUT
+            echo "❌ Requirement not met. (Needs OPEN & APPROVED PR)"
             exit 1
-          fi
+          fi  
+          
       - name: Production Deployment
         if: steps.verify_approval.outputs.approved == 'true' # 👈 Only runs if approved
         run: |
