@@ -8,6 +8,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4 # 👈 This creates the .git folder
       - name: Check PR Approval Status
+        id: verify_approval
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -29,5 +30,16 @@ jobs:
             echo "❌ Error: This workflow requires an APPROVED Pull Request."
             exit 1
           fi
+          if [ "$STATUS" == "APPROVED" ]; then
+            echo "✅ PR is approved. Proceeding..."
+            echo "approved=true" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Error: This workflow requires an APPROVED Pull Request."
+            echo "approved=false" >> $GITHUB_OUTPUT
+           exit 1
+          fi
+      - name: Production Deployment
+        if: steps.verify_approval.outputs.approved == 'true' # 👈 Only runs if approved
+        run: |
+          echo "🚀 PR is approved! Deploying to production..."
           
-          echo "✅ PR is approved. Proceeding..."
