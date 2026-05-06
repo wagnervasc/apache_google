@@ -11,15 +11,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          BRANCH_NAME=${{ github.ref_name }}
           # Find the PR for the current branch
-          PR_NUMBER=$(gh pr view --json number --jq '.number')
+          PR_STATUS=$(gh pr view "$BRANCH_NAME" --json reviewDecision --jq '.reviewDecision' || echo "NO_PR")
           
           # Check the review decision
-          STATUS=$(gh pr view $PR_NUMBER --json reviewDecision --jq '.reviewDecision')
+          echo "Current PR Status: $PR_STATUS"
           
-          echo "Current PR Status: $STATUS"
-          
-          if [ "$STATUS" != "APPROVED" ]; then
-            echo "PR is not approved yet!"
+          if [ "$PR_STATUS" != "APPROVED" ]; then
+            echo "Error: Pull Request is not approved (Status: $PR_STATUS)"
             exit 1
           fi
