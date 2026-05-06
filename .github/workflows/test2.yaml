@@ -1,0 +1,23 @@
+on:
+  workflow_run: 
+
+jobs:
+  check-approval:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check PR Approval Status
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Find the PR for the current branch
+          PR_NUMBER=$(gh pr view --json number --jq '.number')
+          
+          # Check the review decision
+          STATUS=$(gh pr view $PR_NUMBER --json reviewDecision --jq '.reviewDecision')
+          
+          echo "Current PR Status: $STATUS"
+          
+          if [ "$STATUS" != "APPROVED" ]; then
+            echo "PR is not approved yet!"
+            exit 1
+          fi
