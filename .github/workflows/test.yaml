@@ -6,7 +6,7 @@ on:
 
 jobs:
   approved_job:
-    if: github.event.pull_request.labels == 'carai'
+    if: contains (github.event.pull_request.labels.*.name, 'carai')
     runs-on: ubuntu-latest
     steps:
     - run: echo "This PR was labeled carai"
